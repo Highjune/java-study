@@ -257,6 +257,55 @@ public class StreamTest {
                 .findFirst();
     }
 
+    @Test
+    public void reduce0() {
+        List<Integer> numbers = Arrays.asList(4, 5 ,3, 9);
+        int sum = 0;
+        for (int x : numbers) {
+            sum += x;
+        }
+        System.out.println(sum);
 
+        Integer result = numbers.stream()
+                .reduce(0, (a, b) -> a + b);
+        System.out.println(result);
 
+        Integer result1 = numbers.stream()
+                .reduce(1, (a, b) -> a * b);
+        System.out.println(result1);
+
+        Integer result2 = numbers.stream()
+                .reduce(0, Integer::sum);
+        System.out.println(result2);
+
+        Optional<Integer> result3 = numbers.stream()
+                .reduce((a, b) -> a + b);
+
+        // 내 방식
+        Integer max1 = numbers.stream()
+                .reduce(Integer.MIN_VALUE, (a, b) -> Integer.max(a, b));
+        System.out.println(max1);
+
+        Optional<Integer> max2 = numbers.stream()
+                .reduce(Integer::max);
+        System.out.println(max2);
+
+        Optional<Integer> min0 = numbers.stream()
+                .reduce(Integer::min);
+        System.out.println(min0);
+    }
+
+    @Test
+    public void quiz_5_3() {
+        // map-reduce (쉽게 병렬화해서 구글이 웹 검색에 적용하면서 유명해짐)
+        Integer menuCount = menu.stream()
+                .map(m -> 1)
+                .reduce(0, (a, b) -> a + b);
+        System.out.println(menuCount);
+
+        // 바로 count
+        long count = menu.stream()
+                .count();
+        System.out.println(count);
+    }
 }

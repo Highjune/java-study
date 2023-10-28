@@ -309,5 +309,25 @@ public class StreamTest {
         System.out.println(count);
     }
 
+    @Test
+    public void page_181() {
+        Integer sumCalories = menu.stream()
+                .map(Dish::getCalories)
+                .reduce(0, Integer::sum);    // Boxing 이 이루어짐
+        System.out.println(">> " + sumCalories);
+
+        menu.stream()
+                .map(Dish::getCalories)
+                .reduce((d1, d2) -> d1 + d2)
+                .ifPresent(System.out::println);
+
+        // Boxing 없이 sum()? -> 안됨.
+//        menu.stream()
+//                .map(Dish::getCalories) // return 값이 Stream<T> 이므로.
+//                .sum();
+
+
+    }
+
 
 }

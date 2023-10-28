@@ -6,10 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.SecondaryTable;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,6 +50,7 @@ public class FiveAndSixTest {
 
     @Test
     public void test_2() {
+        // 1
         List<String> result = transactions.stream()
                 .map(transaction -> transaction.getTrader().getCity())
                 .distinct()
@@ -61,12 +59,24 @@ public class FiveAndSixTest {
         for (String city : result) {
             System.out.println(city);
         }
+
+        System.out.println("-------");
+
+        // 2 (Set) 으로
+        Set<String> result2 = transactions.stream()
+                .map(transaction -> transaction.getTrader().getCity())
+                .collect(Collectors.toSet());
+
+        for (String s : result2) {
+            System.out.println(s);
+        }
     }
 
     @Test
     public void test_3() {
         String targetCity = "Cambridge";
 
+        // 1
         List<String> result = transactions.stream()
                 .filter(transaction -> targetCity.equals(transaction.getTrader().getCity()))
                 .map(transaction -> transaction.getTrader().getPartnerName())
@@ -77,19 +87,57 @@ public class FiveAndSixTest {
         for (String s : result) {
             System.out.println(s);
         }
+
+        System.out.println("-----------------");
+
+        // map 으로 먼저 변환
+        List<Trader> result2 = transactions.stream()
+                .map(Transaction::getTrader)
+                .filter(trader -> trader.getCity().equals(targetCity))
+                .distinct()
+                .sorted(Comparator.comparing(Trader::getPartnerName))
+                .collect(Collectors.toList());
+
+        System.out.println(result2.size());
+
+        for (Trader trader : result2) {
+            System.out.println(trader.toString());
+        }
     }
 
     @Test
     public void test_4() {
+        // 1
         List<String> result = transactions.stream()
                 .map(transaction -> transaction.getTrader().getPartnerName())
-                .distinct() // 없어도 될 수도
+                .distinct()
                 .sorted()
                 .collect(Collectors.toList());
 
         for (String s : result) {
             System.out.println(s);
         }
+
+        System.out.println("-----------");
+
+        // 2
+        String result2 = transactions.stream()
+                .map(transaction -> transaction.getTrader().getPartnerName())
+                .distinct()
+                .sorted()
+                .reduce("", (n1, n2) -> n1 + n2);
+        System.out.println(result2);
+
+        System.out.println("-----------");
+
+        // 3
+        String result3 = transactions.stream()
+                .map(transaction -> transaction.getTrader().getPartnerName())
+                .distinct()
+                .sorted()
+//                .collect(Collectors.joining()); // 위처럼 그냥 연결. AlanBrianMarioRaoul
+                .collect(Collectors.joining(","));
+        System.out.println(result3);
     }
 
     @Test
@@ -112,21 +160,34 @@ public class FiveAndSixTest {
 
         transactions.stream()
                 .filter(transaction -> targetCity.equals(transaction.getTrader().getCity()))
+                .map(Transaction::getAmount)
                 .forEach(System.out::println);
     }
 
     @Test
     public void test_7() {
+        // 1
         transactions.stream()
                 .max(Comparator.comparing(Transaction::getAmount))
                 .ifPresent(System.out::println);
+
+        // 2
+        transactions.stream()
+                .map(Transaction::getAmount)
+                .reduce(Integer::max);
+
     }
 
     @Test
     public void test_8() {
+        // 1
         transactions.stream()
                 .min(Comparator.comparing(Transaction::getAmount))
                 .ifPresent(System.out::println);
+
+        // 2
+        transactions.stream()
+                .reduce((t1, t2) -> t1.getAmount() < t2.getAmount() ? t1 : t2);
     }
 
 

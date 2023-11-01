@@ -5,18 +5,23 @@ import com.practice.spring.domain.Dish;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
 
 public class StreamTest {
 
     private List<Dish> menu = new ArrayList<>();
     private List<Dish> specialMenu = new ArrayList<>();
+
+    public enum CalorieLevel {
+        DIET, NORMAL, FAT
+    }
 
     @BeforeEach
     public void setUp() {
@@ -325,9 +330,81 @@ public class StreamTest {
 //        menu.stream()
 //                .map(Dish::getCalories) // return 값이 Stream<T> 이므로.
 //                .sum();
-
-
     }
 
+    @Test
+    public void page_207() {
+        int totalCalories = menu.stream()
+                .collect(reducing(0, Dish::getCalories, Integer::sum));
 
+        Integer totalCalories2 = menu.stream()
+                .map(Dish::getCalories)
+                .reduce(Integer::sum).get();
+
+        int totalCalories3 = menu.stream()
+                .mapToInt(Dish::getCalories)
+                .sum();
+    }
+
+    @Test
+    public void reducingCollect() {
+        // 사실 이것이 제일 가독성, 성능 좋음
+        String shortMenu = menu.stream()
+                .map(Dish::getName)
+                .collect(joining()); // joining()은 내부적으로 StringBuilder을 사용.
+
+        // 1
+        String shortMenu2 = menu.stream()
+                .map(Dish::getName)
+                .collect(reducing((s1, s2) -> s1 + s2)).get();  // 누산자 함수 사용. 문자열 합치는 BinaryOperator 사용.
+
+        // 2 - 컴파일 에러
+//        menu.stream()
+//                .collect(Collectors.reducing((d1, d2) -> d1.getName() + d2.getName()));
+
+        // 3
+        String shortMenu3 = menu.stream()
+                .collect(reducing("", Dish::getName, (s1, s2) -> s1 + s2));
+    }
+
+    @Test
+    public void grouping() {
+        Map<Dish.Type, List<Dish>> dishesByType = menu.stream()
+                .collect(groupingBy(menu -> menu.getType()));
+
+        Map<Dish.Type, List<Dish>> dishesByType2 = menu.stream()
+                .collect(groupingBy(Dish::getType));
+
+        System.out.println(dishesByType2);
+    }
+
+    @Test
+    public void grouping2() {
+        Map<CalorieLevel, List<Dish>> dishesByCaloricLevel = menu.stream()
+                .collect(groupingBy(dish -> {
+                    if (dish.getCalories() <= 400) {
+                        return CalorieLevel.DIET;
+                    } else if (dish.getCalories() <= 700) {
+                        return CalorieLevel.NORMAL;
+                    } else {
+                        return CalorieLevel.FAT;
+                    }
+                }));
+    }
+
+    @Test
+    public void grouping3() {
+        Map<Dish.Type, List<Dish>> caloricDishesByType = menu.stream()
+                .filter(d -> d.getCalories() > 500)
+                .collect(groupingBy(Dish::getType));
+
+        System.out.println(caloricDishesByType); // Fish 타입 자체가 없어지므로 키 자체가 맵에서 사라진다.
+    }
+
+    @Test
+    public void grouping4() {
+        // 위 문제점의 해결책
+        menu.stream()
+                .collect(groupingBy(Dish::getType, filtering(dish -> dish.getCalories() > 500, toList())));
+    }
 }

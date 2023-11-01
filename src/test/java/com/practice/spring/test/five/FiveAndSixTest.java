@@ -188,6 +188,8 @@ public class FiveAndSixTest {
         // 2
         transactions.stream()
                 .reduce((t1, t2) -> t1.getAmount() < t2.getAmount() ? t1 : t2);
+
+
     }
 
 

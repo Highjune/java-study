@@ -18,6 +18,7 @@ public class StreamTest {
 
     private List<Dish> menu = new ArrayList<>();
     private List<Dish> specialMenu = new ArrayList<>();
+    private Map<String, List<String>> dishTags = new HashMap<>();
 
     public enum CalorieLevel {
         DIET, NORMAL, FAT
@@ -26,26 +27,36 @@ public class StreamTest {
     @BeforeEach
     public void setUp() {
         menu = Arrays.asList(
-          new Dish("pork", false, 800, Dish.Type.MEAT),
-          new Dish("beef", false, 700, Dish.Type.MEAT),
-          new Dish("chicken", false, 400, Dish.Type.MEAT),
+                new Dish("pork", false, 800, Dish.Type.MEAT),
+                new Dish("beef", false, 700, Dish.Type.MEAT),
+                new Dish("chicken", false, 400, Dish.Type.MEAT),
 
-          new Dish("pizza", true, 550, Dish.Type.OTHER),
-          new Dish("rice", true, 350, Dish.Type.OTHER),
-          new Dish("french fries", true, 530, Dish.Type.OTHER),
-          new Dish("season fruit", true, 120, Dish.Type.OTHER),
+                new Dish("pizza", true, 550, Dish.Type.OTHER),
+                new Dish("rice", true, 350, Dish.Type.OTHER),
+                new Dish("french fries", true, 530, Dish.Type.OTHER),
+                new Dish("season fruit", true, 120, Dish.Type.OTHER),
 
-          new Dish("prawns", false, 300, Dish.Type.FISH),
-          new Dish("salmon", false, 450, Dish.Type.FISH)
+                new Dish("prawns", false, 300, Dish.Type.FISH),
+                new Dish("salmon", false, 450, Dish.Type.FISH)
         );
 
         specialMenu = Arrays.asList(
-            new Dish("seasonable fruit", true, 120, Dish.Type.OTHER),
-            new Dish("prawns", false, 300, Dish.Type.FISH),
-            new Dish("rice", true, 350, Dish.Type.OTHER),
-            new Dish("chicken", false, 400, Dish.Type.MEAT),
-            new Dish("french fries", true, 530, Dish.Type.OTHER)
+                new Dish("seasonable fruit", true, 120, Dish.Type.OTHER),
+                new Dish("prawns", false, 300, Dish.Type.FISH),
+                new Dish("rice", true, 350, Dish.Type.OTHER),
+                new Dish("chicken", false, 400, Dish.Type.MEAT),
+                new Dish("french fries", true, 530, Dish.Type.OTHER)
         );
+
+        dishTags.put("pork", Arrays.asList("greasy", "salty" ));
+        dishTags.put("beef", Arrays.asList("salty", "roasted" ));
+        dishTags.put("chicken", Arrays.asList("fried", "crisp" ));
+        dishTags.put("french fries", Arrays.asList("greasy", "fried" ));
+        dishTags.put("rice", Arrays.asList("light", "natural" ));
+        dishTags.put("season fruit", Arrays.asList("fresh", "natural" ));
+        dishTags.put("pizza", Arrays.asList("tasty", "salty" ));
+        dishTags.put("prawns", Arrays.asList("tasty", "roasted" ));
+        dishTags.put("salmon", Arrays.asList("delicious", "fresh" ));
     }
 
     @Test
@@ -70,7 +81,7 @@ public class StreamTest {
 
         System.out.println(names);
     }
-    
+
     @Test
     public void distinct() {
         List<Integer> numbers = Arrays.asList(1, 2, 1, 3, 3, 2, 4);
@@ -120,7 +131,7 @@ public class StreamTest {
 
     @Test
     public void map1() {
-        List<String> words = Arrays.asList("Modern", "Java", "In", "Action");
+        List<String> words = Arrays.asList("Modern", "Java", "In", "Action" );
         List<Integer> wordLengths = words.stream()
                 .map(String::length)
                 .collect(toList());
@@ -137,10 +148,10 @@ public class StreamTest {
 
     @Test
     public void map2() {
-        List<String> words = Arrays.asList("Modern", "Java", "In", "Action");
+        List<String> words = Arrays.asList("Modern", "Java", "In", "Action" );
 
         List<String[]> collect = words.stream()
-                .map(word -> word.split(""))
+                .map(word -> word.split("" ))
                 .distinct()
                 .collect(toList());
     }
@@ -151,7 +162,7 @@ public class StreamTest {
         Stream<String> words = Arrays.stream(arrayOfWords);
 
         List<Stream<String>> collect = words
-                .map(word -> word.split(""))
+                .map(word -> word.split("" ))
                 .map(Arrays::stream)
                 .distinct()
                 .collect(toList());
@@ -162,7 +173,7 @@ public class StreamTest {
         String[] arrayOfWords = {"GoodBye", "World"};
         Stream<String> words = Arrays.stream(arrayOfWords);
 
-        words.map(word -> word.split(""))
+        words.map(word -> word.split("" ))
                 .flatMap(Arrays::stream)
                 .distinct()
                 .collect(toList());
@@ -179,6 +190,7 @@ public class StreamTest {
             System.out.println(integer);
         }
     }
+
     @Test
     public void map6() {
         List<Integer> list1 = Arrays.asList(1, 2, 3);
@@ -203,18 +215,21 @@ public class StreamTest {
                 )
                 .collect(toList());
     }
+
     @Test
     public void anyMatch1() {
         if (menu.stream().anyMatch(Dish::isVegetarian)) {
-            System.out.println("어느정도는 채식주의자 친화적이다");
+            System.out.println("어느정도는 채식주의자 친화적이다" );
         }
     }
+
     @Test
     public void allMatch() {
         boolean isHealth = menu.stream()
                 .allMatch(dish -> dish.getCalories() < 1000);
         System.out.println(isHealth);
     }
+
     @Test
     public void noneMatch() {
         boolean isHealth = menu.stream()
@@ -238,6 +253,7 @@ public class StreamTest {
 
         System.out.println(any.get().getName());
     }
+
     @Test
     public void findAny2() {
         menu.stream()
@@ -245,6 +261,7 @@ public class StreamTest {
                 .findFirst()
                 .ifPresent(dish -> System.out.println(dish.getName()));
     }
+
     @Test
     public void findFirst() {
         List<Integer> someNumbers = Arrays.asList(1, 2, 3, 4, 5);
@@ -264,7 +281,7 @@ public class StreamTest {
 
     @Test
     public void reduce0() {
-        List<Integer> numbers = Arrays.asList(4, 5 ,3, 9);
+        List<Integer> numbers = Arrays.asList(4, 5, 3, 9);
         int sum = 0;
         for (int x : numbers) {
             sum += x;
@@ -369,6 +386,9 @@ public class StreamTest {
 
     @Test
     public void grouping() {
+        // 사실 grouping로 넘겨주는 컬렉터의 형식은 제안이 없다. 아래와 같이 두 번째 인수로 counting 컬렉터를 전달할 수도 있다.
+        // 분류 함수 한 개의 인수를 갖는 groupingBy(f) 는 사실 groupingBy(f, toList()) 의 축약형
+
         Map<Dish.Type, List<Dish>> dishesByType = menu.stream()
                 .collect(groupingBy(menu -> menu.getType()));
 
@@ -404,7 +424,84 @@ public class StreamTest {
     @Test
     public void grouping4() {
         // 위 문제점의 해결책
-        menu.stream()
-                .collect(groupingBy(Dish::getType, filtering(dish -> dish.getCalories() > 500, toList())));
+        Map<Dish.Type, List<Dish>> caloricDishesByType = menu.stream()
+                .collect(groupingBy(Dish::getType, filtering(dish -> dish.getCalories() > 500, toList()))); // grouping 인자 2개
+
+        System.out.println(caloricDishesByType);
     }
+
+    @Test
+    public void grouping5() {
+        Map<Dish.Type, List<String>> collect = menu.stream()
+                .collect(groupingBy(Dish::getType, mapping(Dish::getName, toList()))); // grouping 인자 2개
+
+        System.out.println(collect);
+    }
+
+    @Test
+    public void grouping6() {
+        Map<Dish.Type, Set<String>> collect = menu.stream()
+                .collect(groupingBy(Dish::getType,
+                        flatMapping(dish -> dishTags.get(dish.getName()).stream(), toSet()))); // grouping 인자 2개
+
+        System.out.println(collect);
+    }
+
+    @Test
+    public void grouping7() {
+        // grouping 안의 grouping
+
+        Map<Dish.Type, Map<CalorieLevel, List<Dish>>> dishesByTypeCaloricLevel = menu.stream()
+                .collect(groupingBy(Dish::getType,  // groupingBy 인수 2개
+                        groupingBy(dish -> {
+                            if (dish.getCalories() <= 400) {
+                                return CalorieLevel.DIET;
+                            } else if (dish.getCalories() <= 700) {
+                                return CalorieLevel.NORMAL;
+                            } else {
+                                return CalorieLevel.FAT;
+                            }
+                        })
+                ));
+
+        System.out.println(dishesByTypeCaloricLevel);
+    }
+
+    @Test
+    public void grouping8() {
+        // 사실 grouping로 넘겨주는 컬렉터의 형식은 제안이 없다. 아래와 같이 두 번째 인수로 counting 컬렉터를 전달할 수도 있다.
+        // 분류 함수 한 개의 인수를 갖는 groupingBy(f) 는 사실 groupingBy(f, toList()) 의 축약형
+        Map<Dish.Type, Long> typesCount = menu.stream()
+                .collect(groupingBy(Dish::getType, counting())); // groupingBy 인수 2개
+
+        System.out.println(typesCount);
+    }
+
+    @Test
+    public void grouping9() {
+        // 종류별 메뉴에서 가장 높은 칼로리를 가진 요리 찾기(Optional 로 반환)
+        Map<Dish.Type, Optional<Dish>> mostCaloricByType = menu.stream()
+                .collect(groupingBy(Dish::getType,
+                        maxBy(Comparator.comparingInt(Dish::getCalories))));
+
+        System.out.println(mostCaloricByType);
+    }
+
+    @Test
+    public void grouping10() {
+        // 종류별 메뉴에서 가장 높은 칼로리를 가진 요리 찾기(Optional 풀기)
+        // 리듀싱 컬렉터는 절대 Optional.empty()를 반환하지 않으므로 안전한 코드다. 그래서 Optional::get 으로 꺼내서 반환
+
+        // 3개의 컬렉터(groupingBy, collectingAndThen, maxBy)
+        Map<Dish.Type, Dish> mostCaloricByType = menu.stream()
+                // 분류 함수로 원래 스트림을 각각의 서브 스트림으로 분할
+                // groupingBy 컬렉터는 CollectingAndThen 컬렉터를 감싼다. 그래서 두 번째 컬렉터(CollectingAndThen) 는 그룹화된 세 개의 서브스트림에 적용
+                .collect(groupingBy(Dish::getType,
+                        // collectingAndThen 컬렉터는 세 번쟤 컬렉터 maxBy를 감싼다.
+                        // 리듀싱 컬렉터(CollectingAndThen) 가 각각의 서브스트림에 연산(maxBy) 를 한 결과에 Optional::get 적용
+                        collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get)));
+
+        System.out.println(mostCaloricByType);
+    }
+
 }

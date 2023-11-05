@@ -2,13 +2,16 @@ package com.practice.spring.test;
 
 
 import com.practice.spring.domain.Dish;
+import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -503,5 +506,166 @@ public class StreamTest {
 
         System.out.println(mostCaloricByType);
     }
+
+    @Test
+    public void groupingEtc() {
+        Map<Dish.Type, Integer> collect1 = menu.stream()
+                .collect(groupingBy(Dish::getType, summingInt(Dish::getCalories)));
+
+        System.out.println(collect1);
+
+        Map<Dish.Type, Set<CalorieLevel>> collect2 = menu.stream().collect(
+                groupingBy(Dish::getType, mapping(dish -> {
+                            if (dish.getCalories() <= 400) {
+                                return CalorieLevel.DIET;
+                            } else if (dish.getCalories() <= 700) {
+                                return CalorieLevel.NORMAL;
+                            } else {
+                                return CalorieLevel.FAT;
+                            }
+                        },
+                        toSet()
+                )));
+        System.out.println(collect2);
+
+        Map<Dish.Type, HashSet<CalorieLevel>> collect3 = menu.stream().collect(
+                groupingBy(Dish::getType, mapping(dish -> {
+                            if (dish.getCalories() <= 400) {
+                                return CalorieLevel.DIET;
+                            } else if (dish.getCalories() <= 700) {
+                                return CalorieLevel.NORMAL;
+                            } else {
+                                return CalorieLevel.FAT;
+                            }
+                        }, toCollection(HashSet::new)
+                )));
+
+        System.out.println(collect3);
+    }
+
+    @Test
+    public void partition1() {
+        Map<Boolean, List<Dish>> collect = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian));
+        System.out.println(collect);
+
+        List<Dish> veterianTrue = collect.get(true);
+        List<Dish> veterianFalse = collect.get(false);
+
+        System.out.println(veterianTrue);
+        System.out.println(veterianFalse);
+
+        // partitionBy 말고 그냥 filter로 해도 같은 결과 나온다.
+        List<Dish> trueVegetarian = menu.stream()
+                .filter(Dish::isVegetarian) // .filter(dish -> !dish.getIsvegetarian())
+                .collect(toList());
+        System.out.println(trueVegetarian);
+    }
+
+    @Test
+    public void partition2() {
+        // partitionBy 두번째 인자에 컬렉터 전달
+        Map<Boolean, Map<Dish.Type, List<Dish>>> collect = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian, groupingBy(Dish::getType)));
+
+        System.out.println(collect);
+    }
+
+    @Test
+    public void partition3() {
+        // 채식 요리와 채식이 아닌 요리 각각의 그룹에서 가장 칼로리가 높은 요리 찾기
+        Map<Boolean, Dish> collect = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian
+                        , collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)),
+                                Optional::get)));
+
+        System.out.println(collect);
+    }
+
+    @Test
+    public void quiz6_2_1() {
+        // 채식주의 t/f 안에서 calories 500이상의 t/f 로 나뉨. 총 4개 그룹
+        Map<Boolean, Map<Boolean, List<Dish>>> collect = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian,
+                        partitioningBy(dish -> dish.getCalories() > 500)));
+        System.out.println(collect);
+    }
+
+    @Test
+    public void quiz6_2_2() {
+//        menu.stream()
+//                .collect(partitioningBy(Dish::isVegetarian,
+//                        partitioningBy(Dish::getType))); // 컴파일 에러임. predicate를 인수로 받아야 함
+    }
+
+    @Test
+    public void quiz6_2_3() {
+        // 채식주의 true / false 의 각각 수
+        Map<Boolean, Long> collect = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian, counting()));
+
+        System.out.println(collect);
+    }
+
+    @Test
+    public void partitionPrimes() {
+        // n개의 숫자를 소수와 비소수로 분류
+        Map<Boolean, List<Integer>> booleanListMap = partitionPrimes(50);
+        System.out.println(booleanListMap);
+    }
+
+    // 소수인지 판별하는 것
+    public boolean isPrime(int candidate) {
+        int candidateRoot = (int) Math.sqrt((double) candidate);
+        return IntStream.rangeClosed(2, candidateRoot)
+                .noneMatch(i -> candidate % i == 0);
+    }
+
+    // n개의 숫자를 소수와 비소수로 분류
+    public Map<Boolean, List<Integer>> partitionPrimes(int number) {
+        return IntStream.rangeClosed(2, number).boxed()
+                .collect(partitioningBy(this::isPrime));
+    }
+
+    @Test
+    public void collectBreifing() {
+        List<Dish> collect = menu.stream()
+                .collect(toList());
+
+        Set<Dish> collect1 = menu.stream()
+                .collect(toSet());
+
+        Collection<Dish> dishes = menu.stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        menu.stream()
+                .collect(counting());
+
+        menu.stream()
+                .collect(summingInt(Dish::getCalories));
+
+        menu.stream()
+                .collect(averagingInt(Dish::getCalories));
+
+        IntSummaryStatistics summary = menu.stream()
+                .collect(summarizingInt(Dish::getCalories));
+        summary.getMax();
+        summary.getSum();
+        summary.getMin();
+        summary.getMin();
+        summary.getCount();
+
+        menu.stream()
+                .map(Dish::getName)
+                .collect(Collectors.joining(", "));
+
+        Optional<Dish> collect2 = menu.stream()
+                .collect(maxBy(Comparator.comparingInt(Dish::getCalories)));
+
+
+    }
+
+
+
 
 }

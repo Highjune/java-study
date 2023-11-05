@@ -1,11 +1,13 @@
 package com.practice.spring.test;
 
 
+import com.practice.spring.collector.ToListCollector;
 import com.practice.spring.domain.Dish;
 import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.springframework.boot.test.context.TestComponent;
 
 import java.awt.*;
 import java.util.*;
@@ -657,12 +659,42 @@ public class StreamTest {
 
         menu.stream()
                 .map(Dish::getName)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining(", " ));
 
         Optional<Dish> collect2 = menu.stream()
                 .collect(maxBy(Comparator.comparingInt(Dish::getCalories)));
 
+        Integer collect3 = menu.stream()
+                .collect(reducing(0, Dish::getCalories, Integer::sum));
 
+        Integer collect6 = menu.stream()
+                .collect(collectingAndThen(toList(), List::size));
+
+        Map<Dish.Type, List<Dish>> collect5 = menu.stream()
+                .collect(groupingBy(Dish::getType));
+
+        Map<Boolean, List<Dish>> collect4 = menu.stream()
+                .collect(partitioningBy(Dish::isVegetarian));
+    }
+
+    @Test
+    public void customToListCollector() {
+        // 기존1 -> 싱글턴 Collections.empty(); 로 빈 리스트를 반환한다.
+        List<Dish> dishes1 = menu.stream()
+                .collect(toList());
+
+        List<Dish> dishes2 = menu.stream()
+                .collect(new ToListCollector<Dish>()); // new로 인스턴스화
+    }
+
+    @Test
+    public void originToListCollector() {
+        // 컬렉턴 구현 만들지 않고도 커스텀 수집 수행하기
+        menu.stream().collect(
+                ArrayList::new,  // supplier (발행)
+                List::add,      // accumulator (누적)
+                List::addAll    // combiner (합침)
+        );
     }
 
 

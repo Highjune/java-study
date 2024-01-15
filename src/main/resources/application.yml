@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties:
+      hibernate:
+        show_log: true
+        format_sql: true
+    show_sql: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+storage:
+  datasource:
+    core:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/testdatabase?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&MODE=MYSQL
+      username: root
+      password: admin
+      pool-name: main-db-pool
+
+

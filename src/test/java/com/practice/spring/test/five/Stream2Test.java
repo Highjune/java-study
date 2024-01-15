@@ -51,9 +51,6 @@ public class Stream2Test {
         dishTags.put("salmon", Arrays.asList("delicious", "fresh" ));
     }
 
-    @Test
-    public void 
-
     public static boolean isPrime(List<Integer> primes, int candidate) {
         return primes.stream().noneMatch(i -> candidate % i == 0);
     }
